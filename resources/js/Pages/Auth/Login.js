@@ -1,15 +1,109 @@
 import React from "react";
-import { Formik, useField, Form, ErrorMessage } from "formik";
+import { Formik, useField, Form } from "formik";
 import * as Yup from "yup";
-import Paper from "@material-ui/core/Paper";
-import Box from "@material-ui/core/Box";
-import TextField from "@material-ui/core/TextField";
-import Container from "@material-ui/core/Container";
+import {
+    Paper,
+    Box,
+    TextField,
+    Container,
+    Typography,
+    Button,
+    Checkbox,
+    FormControlLabel,
+    CircularProgress
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
-import Button from "@material-ui/core/Button";
-import Checkbox from "@material-ui/core/Checkbox";
 import { Inertia } from "@inertiajs/inertia";
+import logo from "./logo.png";
+import login from "./login.svg";
+import wave from "./wave.svg";
+
+const Login = () => {
+    const { root, section } = useStyles();
+
+    return (
+        <Container maxWidth="sm">
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="100vh"
+                width="100%"
+            >
+                <Paper variant="elevation" title="welcome">
+                    <Box p={4} className={section}>
+                        <Typography
+                            style={{ marginBottom: 40 }}
+                            align="center"
+                            variant="h3"
+                            gutterBottom
+                        >
+                            <img
+                                style={{ height: 90, width: 150 }}
+                                src={logo}
+                                alt="Logo"
+                            />
+                        </Typography>
+                        <Formik
+                            initialValues={{
+                                email: "",
+                                password: "",
+                                remember: false
+                            }}
+                            validationSchema={validationSchema}
+                            onSubmit={values => {
+                                Inertia.post("/login", values).then(res => {
+                                    console.log(res);
+                                });
+                            }}
+                        >
+                            {({ values: { isSubmitting } }) => (
+                                <Form
+                                    className={root}
+                                    noValidate
+                                    autoComplete="off"
+                                >
+                                    <Input
+                                        name="email"
+                                        placeholder="Email"
+                                        label="email"
+                                        type="email"
+                                    />
+                                    <Input
+                                        name="password"
+                                        placeholder="Enter your password"
+                                        label="password"
+                                        type="password"
+                                    />
+                                    <Input
+                                        type="checkbox"
+                                        label="remember me"
+                                        name="remember"
+                                    />
+                                    <Button
+                                        variant="contained"
+                                        style={{ marginTop: 10 }}
+                                        type="submit"
+                                        color="primary"
+                                        size="large"
+                                        fullWidth
+                                        startIcon={
+                                            isSubmitting && (
+                                                <CircularProgress color="inherit" />
+                                            )
+                                        }
+                                    >
+                                        Log In
+                                    </Button>
+                                </Form>
+                            )}
+                        </Formik>
+                    </Box>
+                </Paper>
+            </Box>
+        </Container>
+    );
+};
 
 const Input = ({ type, label, ...props }) => {
     const [field, meta] = useField(props);
@@ -19,17 +113,23 @@ const Input = ({ type, label, ...props }) => {
             error={Boolean(meta.touched && meta.error)}
             helperText={meta.touched && meta.error}
             required
-            variant="standard"
+            variant="outlined"
             label={label}
+            type={type}
             {...field}
             {...props}
         />
     ) : (
-        <Checkbox
-            color="primary"
-            value={meta.value}
+        <FormControlLabel
+            control={
+                <Checkbox
+                    checked={field.value}
+                    {...field}
+                    color="primary"
+                    {...props}
+                />
+            }
             label={label}
-            labelPlacement="end"
         />
     );
 };
@@ -47,63 +147,10 @@ const useStyles = makeStyles(theme => ({
             marginBottom: theme.spacing(2),
             width: "100%"
         }
+    },
+    section: {
+        margin: theme.spacing(2, 2)
     }
 }));
-
-const Login = () => {
-    const { root } = useStyles();
-
-    return (
-        <Container maxWidth="sm" style={{ marginTop: 50 }}>
-            <Paper>
-                <Box p={8}>
-                    <Typography align="center" variant="h4" gutterBottom>
-                        Login
-                    </Typography>
-                    <Formik
-                        initialValues={{ email: "", password: "" }}
-                        validationSchema={validationSchema}
-                        onSubmit={values => {
-                            Inertia.post("/login", {
-                                ...values,
-                                remember: false
-                            }).then(res => {
-                                console.log(res);
-                            });
-                        }}
-                    >
-                        <Form className={root} noValidate autoComplete="off">
-                            <Input
-                                name="email"
-                                placeholder="Enter your email"
-                                label="email"
-                                type="email"
-                            />
-                            <Input
-                                name="password"
-                                placeholder="Enter your password"
-                                label="password"
-                                type="password"
-                            />
-                            <Input
-                                name="checkbox"
-                                label="remember me"
-                                type="checkbox"
-                            />
-                            <Button
-                                variant="contained"
-                                style={{ marginTop: 10 }}
-                                type="submit"
-                                color="primary"
-                            >
-                                login
-                            </Button>
-                        </Form>
-                    </Formik>
-                </Box>
-            </Paper>
-        </Container>
-    );
-};
 
 export default Login;

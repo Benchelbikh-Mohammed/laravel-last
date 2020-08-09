@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Inertia\Inertia ;
-use Illuminate\Support\Facades\Auth;
-
-
+// use App\User;
+// use Illuminate\Http\Request;
+use Inertia\Inertia;
+// use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -27,8 +27,13 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // Get the currently authenticated user...
-        $user = Auth::user();
-        return Inertia::render('Dashboard/Index' , $user);
+        $posts = DB::table('users')
+            ->join('posts', 'users.id', '=', 'posts.user_id')
+            ->select('users.name', 'posts.body')
+            ->get();
+
+        return Inertia::render('Dashboard/Index', [
+            'posts' => $posts,
+        ]);
     }
 }
